@@ -1,9 +1,17 @@
 import React from 'react';
-import { Container, Box, Typography, Button, Grid } from '@mui/material';
+import { Container, Box, Typography, Card, CardActionArea, Grid } from '@mui/material';
+
+const features = [
+  { name: 'View Program' },
+  { name: 'Add/Edit Program' },
+  { name: 'Flow Catalog' },
+  { name: 'Program Calendar' },
+  { name: 'System Availability' },
+];
 
 function LandingPage() {
   const handleButtonClick = (feature) => {
-    alert(`Feature ${feature} clicked`);
+    alert(`${feature} clicked`);
   };
 
   return (
@@ -13,56 +21,28 @@ function LandingPage() {
           Welcome, User!
         </Typography>
         <Grid container spacing={2} justifyContent="center">
-          <Grid item>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              sx={{ width: 200, height: 50 }}
-              onClick={() => handleButtonClick(1)}
-            >
-              Feature 1
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button 
-              variant="contained" 
-              color="secondary" 
-              sx={{ width: 200, height: 50 }}
-              onClick={() => handleButtonClick(2)}
-            >
-              Feature 2
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button 
-              variant="contained" 
-              color="success" 
-              sx={{ width: 200, height: 50 }}
-              onClick={() => handleButtonClick(3)}
-            >
-              Feature 3
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button 
-              variant="contained" 
-              color="warning" 
-              sx={{ width: 200, height: 50 }}
-              onClick={() => handleButtonClick(4)}
-            >
-              Feature 4
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button 
-              variant="contained" 
-              color="info" 
-              sx={{ width: 200, height: 50 }}
-              onClick={() => handleButtonClick(5)}
-            >
-              Feature 5
-            </Button>
-          </Grid>
+          {features.map((feature) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name}>
+              <Card
+                sx={{
+                  bgcolor: 'grey.300',
+                  color: 'black',
+                  height: 150,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 2,
+                }}
+              >
+                <CardActionArea
+                  sx={{ height: '100%' }}
+                  onClick={() => handleButtonClick(feature.name)}
+                >
+                  <Typography variant="h6">{feature.name}</Typography>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </Container>
