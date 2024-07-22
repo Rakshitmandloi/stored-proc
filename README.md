@@ -64,19 +64,10 @@ const LandingPageContent = ({ onCardClick }) => (
 );
 
 function LandingPage() {
-  const [selectedComponent, setSelectedComponent] = useState('default');
+  const [selectedComponent, setSelectedComponent] = useState(null);
 
   const handleButtonClick = (component) => {
     setSelectedComponent(component);
-  };
-
-  const renderComponent = () => {
-    if (selectedComponent === 'default') {
-      return <LandingPageContent onCardClick={handleButtonClick} />;
-    }
-
-    const Component = selectedComponent;
-    return <Component />;
   };
 
   return (
@@ -85,14 +76,14 @@ function LandingPage() {
         <Typography variant="h4" component="div" gutterBottom>
           Welcome, User!
         </Typography>
-        {selectedComponent !== 'default' && (
-          <Button variant="contained" onClick={() => setSelectedComponent('default')}>
+        {selectedComponent && (
+          <Button variant="contained" onClick={() => setSelectedComponent(null)}>
             Back to Home
           </Button>
         )}
       </Box>
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        {renderComponent()}
+        {selectedComponent ? React.createElement(selectedComponent) : <LandingPageContent onCardClick={handleButtonClick} />}
       </Box>
     </Container>
   );
