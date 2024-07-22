@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, Button } from '@mui/material';
+import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, Button, AppBar, Toolbar } from '@mui/material';
 import { styled } from '@mui/system';
 
 import FlowCatalogView from './components/FlowCatalogView';
@@ -21,8 +21,8 @@ const defaultImage = 'path_to_default_image'; // Replace with your image path
 const StyledCard = styled(Card)({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   color: 'white',
-  height: 150,
-  width: 150,
+  height: '100%',
+  width: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -45,14 +45,14 @@ const LandingPageContent = ({ onCardClick }) => (
   <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
     <Grid container spacing={2} justifyContent="center" alignItems="center">
       {features.map((feature) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name}>
+        <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
           <StyledCard>
             <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
               <CardMedia
                 component="img"
                 image={defaultImage}
                 alt={feature.name}
-                sx={{ height: '80%', width: '80%', objectFit: 'cover', mb: 1 }}
+                sx={{ height: '70%', width: '70%', objectFit: 'cover', mb: 1 }}
               />
               <Typography variant="h6">{feature.name}</Typography>
             </CenteredCardActionArea>
@@ -71,18 +71,20 @@ function LandingPage() {
   };
 
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Typography variant="h4" component="div" gutterBottom>
-          Welcome, User!
-        </Typography>
-        {selectedComponent && (
-          <Button variant="contained" onClick={() => setSelectedComponent(null)}>
-            Back to Home
-          </Button>
-        )}
-      </Box>
-      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Welcome, User!
+          </Typography>
+          {selectedComponent && (
+            <Button color="inherit" onClick={() => setSelectedComponent(null)}>
+              Back to Home
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4 }}>
         {selectedComponent ? React.createElement(selectedComponent) : <LandingPageContent onCardClick={handleButtonClick} />}
       </Box>
     </Container>
