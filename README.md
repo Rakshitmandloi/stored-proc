@@ -9,11 +9,11 @@ import ProgramCalendarView from './components/ProgramCalendarView';
 import AddEditProgramView from './components/AddEditProgramView';
 
 const features = [
-  { name: 'View Program', component: ViewProgramView },
-  { name: 'Add/Edit Program', component: AddEditProgramView },
-  { name: 'Flow Catalog', component: FlowCatalogView },
-  { name: 'Program Calendar', component: ProgramCalendarView },
-  { name: 'System Availability', component: SystemAvailabilityView },
+  { name: 'View Program', component: 1 },
+  { name: 'Add/Edit Program', component: 2 },
+  { name: 'Flow Catalog', component: 3 },
+  { name: 'Program Calendar', component: 4 },
+  { name: 'System Availability', component: 5 },
 ];
 
 const defaultImage = 'path_to_default_image'; // Replace with your image path
@@ -64,10 +64,27 @@ const LandingPageContent = ({ onCardClick }) => (
 );
 
 function LandingPage() {
-  const [selectedComponent, setSelectedComponent] = useState(null);
+  const [selectedComponent, setSelectedComponent] = useState(0);
 
   const handleButtonClick = (component) => {
     setSelectedComponent(component);
+  };
+
+  const renderComponent = () => {
+    switch (selectedComponent) {
+      case 1:
+        return <ViewProgramView />;
+      case 2:
+        return <AddEditProgramView />;
+      case 3:
+        return <FlowCatalogView />;
+      case 4:
+        return <ProgramCalendarView />;
+      case 5:
+        return <SystemAvailabilityView />;
+      default:
+        return <LandingPageContent onCardClick={handleButtonClick} />;
+    }
   };
 
   return (
@@ -77,15 +94,15 @@ function LandingPage() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Welcome, User!
           </Typography>
-          {selectedComponent && (
-            <Button color="inherit" onClick={() => setSelectedComponent(null)}>
+          {selectedComponent !== 0 && (
+            <Button color="inherit" onClick={() => setSelectedComponent(0)}>
               Back to Home
             </Button>
           )}
         </Toolbar>
       </AppBar>
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4 }}>
-        {selectedComponent ? React.createElement(selectedComponent) : <LandingPageContent onCardClick={handleButtonClick} />}
+        {renderComponent()}
       </Box>
     </Container>
   );
