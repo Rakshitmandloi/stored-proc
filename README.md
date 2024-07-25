@@ -1,89 +1,136 @@
-import mysql.connector
+import React, { useState, useEffect } from 'react';
+import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
-def connect_to_database():
-    # Database connection details (replace with your actual credentials)
-    db_config = {
-        "host": "localhost",
-        "user": "your_username",
-        "password": "your_password",
-        "database": "your_database"
+import FlowCatalogView from './components/FlowCatalogView';
+import ViewProgramView from './components/ViewProgramView';
+import SystemAvailabilityView from './components/SystemAvailabilityView';
+import ProgramCalenderView from './components/ProgramCalenderView';
+import AddEditProgramView from './components/AddEditProgramView';
+import './App.css';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#b0bec5',
+    },
+    secondary: {
+      main: '#BABABA',
+    },
+  },
+});
+
+const features = [
+  { name: 'View Program', component: 1 },
+  { name: 'Add/Edit Program', component: 2 },
+  { name: 'Flow Catalog', component: 3 },
+  { name: 'Program Calendar', component: 4 },
+  { name: 'System Availability', component: 5 },
+];
+
+const defaultImage = 'path_to_default_image'; // Replace with your image path
+
+const StyledCard = styled(Card)({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  color: 'white',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 16,
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: 'grey',
+  },
+});
+
+const CenteredCardActionArea = styled(CardActionArea)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  flexDirection: 'column',
+});
+
+const LandingPageContent = ({ onCardClick }) => (
+  <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Grid container spacing={2} justifyContent="center" alignItems="center">
+        {features.map((feature) => (
+          <Grid item xs={12} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
+            <StyledCard>
+              <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
+                <CardMedia
+                  component="img"
+                  image={defaultImage}
+                  title={feature.name}
+                  sx={{ height: '70%', width: '100%', objectFit: 'cover', mb: 1 }}
+                />
+                <Typography variant="h6">{feature.name}</Typography>
+              </CenteredCardActionArea>
+            </StyledCard>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  </Container>
+);
+
+const LandingPage = () => {
+  const [selectedComponent, setSelectedComponent] = useState(0);
+  const [username, setUsername] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch the username from the root element's data-username attribute
+    const rootElement = document.getElementById('root');
+    const fetchedUsername = rootElement ? rootElement.getAttribute('data-username') : 'Guest';
+    setUsername(fetchedUsername);
+    setLoading(false);
+  }, []);
+
+  const handleButtonClick = (component) => {
+    setSelectedComponent(component);
+  };
+
+  const renderComponent = () => {
+    switch (selectedComponent) {
+      case 1:
+        return <ViewProgramView />;
+      case 2:
+        return <AddEditProgramView />;
+      case 3:
+        return <FlowCatalogView />;
+      case 4:
+        return <ProgramCalenderView />;
+      case 5:
+        return <SystemAvailabilityView />;
+      default:
+        return <LandingPageContent onCardClick={handleButtonClick} />;
     }
+  };
 
-    connection = mysql.connector.connect(**db_config)
-    return connection
+  return (
+    <ThemeProvider theme={theme}>
+      <AppBar position="static" color="default">
+        <Toolbar>
+          {loading ? (
+            <CircularProgress color="inherit" />
+          ) : (
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Welcome, {username}!
+            </Typography>
+          )}
+          {selectedComponent !== 0 && (
+            <Button color="inherit" onClick={() => setSelectedComponent(0)}>
+              Back to Home
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
+      {renderComponent()}
+    </ThemeProvider>
+  );
+};
 
-def close_connection(connection):
-    if connection:
-        connection.close()
-
-def execute_query(query, params=None):
-    connection = connect_to_database()
-    cursor = connection.cursor()
-    cursor.execute(query, params)
-    connection.commit()  # Assuming you want to commit changes (modify as needed)
-    result = cursor.fetchall()  # Fetch all results (modify as needed)
-    close_connection(connection)
-    return result
-
-# Example usage (replace with your specific queries)
-def check_user_exists(username):
-    query = "SELECT role FROM users WHERE user = %s"
-    return execute_query(query, (username,))
-
-def add_user(username, role, fname=None, lname=None, email=None):
-    query = "INSERT INTO users (user, role, fname, lname, email) VALUES (%s, %s, %s, %s, %s)"
-    params = (username, role, fname, lname, email)
-    execute_query(query, params)
-
-def get_user_role(username):
-    query = "SELECT role FROM users WHERE user = %s"
-    result = execute_query(query, (username,))
-    if result:
-        return result[0][0]  # Assuming role is the first column in the first row
-    else:
-        return None
-....................................
-from flask import Flask, request
-from database_utils import check_user_exists, add_user, get_user_role
-
-app = Flask(__name__)
-
-# ... your Flask routes and logic here ...
-
-@app.route('/check_user', methods=['POST'])
-def check_user_handler():
-    username = request.json.get('username')
-
-    if not check_user_exists(username):
-        return {
-            "message": "User not found"
-        }
-
-    user_data = check_user_exists(username)
-    user_role = user_data[0][0]  # Assuming role is the first column in the first row
-
-    return {
-        "message": "User exists",
-        "role": user_role
-    }
-
-@app.route('/get_user_role', methods=['POST'])
-def get_user_role_handler():
-    username = request.json.get('username')
-
-    role = get_user_role(username)
-
-    if role:
-        return {
-            "message": "User role retrieved successfully",
-            "role": role
-        }
-    else:
-        return {
-            "message": "User not found or role not available"
-        }
-
-# ... other routes and logic ...
-
-if __name__ == '__main__':
-    app.run(debug=True)
+export default LandingPage;
