@@ -125,18 +125,20 @@ const LandingPage = () => {
           {loading ? (
             <CircularProgress color="inherit" />
           ) : userExists ? (
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Welcome, {username}!
-            </Typography>
+            <>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Welcome, {username}!
+              </Typography>
+              {selectedComponent !== 0 && (
+                <Button color="inherit" onClick={() => setSelectedComponent(0)}>
+                  Back to Home
+                </Button>
+              )}
+            </>
           ) : (
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               User {username} not found, adding to database...
             </Typography>
-          )}
-          {selectedComponent !== 0 && (
-            <Button color="inherit" onClick={() => setSelectedComponent(0)}>
-              Back to Home
-            </Button>
           )}
         </Toolbar>
       </AppBar>
