@@ -157,3 +157,23 @@ const LandingPage = () => {
 
 export default LandingPage;
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React App</title>
+    <script type="text/javascript">
+        // Check if the username is already set in localStorage
+        if (!localStorage.getItem("username")) {
+            window.location.href = "/getUser.html";
+        }
+    </script>
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+</body>
+</html>
+
+
