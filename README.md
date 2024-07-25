@@ -1,4 +1,3 @@
-Python
 import mysql.connector
 
 def connect_to_database():
@@ -28,48 +27,60 @@ def execute_query(query, params=None):
 
 # Example usage (replace with your specific queries)
 def check_user_exists(username):
-    query = "SELECT EXISTS(SELECT * FROM users WHERE user = %s)"
+    query = "SELECT role FROM users WHERE user = %s"
     return execute_query(query, (username,))
 
 def add_user(username, role, fname=None, lname=None, email=None):
     query = "INSERT INTO users (user, role, fname, lname, email) VALUES (%s, %s, %s, %s, %s)"
     params = (username, role, fname, lname, email)
     execute_query(query, params)
-Use code with caution.
 
-Explanation:
-
-This file (database_utils.py) defines functions for connecting to the database, executing queries, and closing connections.
-The connect_to_database function establishes a connection and returns it.
-The close_connection function closes the connection if it's open.
-The execute_query function takes a query string and optional parameters, executes the query, commits changes (modify as needed), fetches results (modify as needed), and closes the connection.
-Example functions check_user_exists and add_user demonstrate how to use execute_query for specific tasks.
-2. server.py (your Flask app):
-
-Python
+def get_user_role(username):
+    query = "SELECT role FROM users WHERE user = %s"
+    result = execute_query(query, (username,))
+    if result:
+        return result[0][0]  # Assuming role is the first column in the first row
+    else:
+        return None
+....................................
 from flask import Flask, request
-from database_utils import check_user_exists, add_user  # Import functions from database_utils
+from database_utils import check_user_exists, add_user, get_user_role
 
 app = Flask(__name__)
 
 # ... your Flask routes and logic here ...
 
-@app.route('/add_user', methods=['POST'])
-def add_user_handler():
+@app.route('/check_user', methods=['POST'])
+def check_user_handler():
     username = request.json.get('username')
-    role = request.json.get('role')
-    fname = request.json.get('fname')
-    lname = request.json.get('lname')
-    email = request.json.get('email')
 
-    if check_user_exists(username):
+    if not check_user_exists(username):
         return {
-            "message": "User already exists"
+            "message": "User not found"
+        }
+
+    user_data = check_user_exists(username)
+    user_role = user_data[0][0]  # Assuming role is the first column in the first row
+
+    return {
+        "message": "User exists",
+        "role": user_role
+    }
+
+@app.route('/get_user_role', methods=['POST'])
+def get_user_role_handler():
+    username = request.json.get('username')
+
+    role = get_user_role(username)
+
+    if role:
+        return {
+            "message": "User role retrieved successfully",
+            "role": role
         }
     else:
-        add_user(username, role, fname, lname, email)
         return {
-            "message": "User added successfully"
+            "message": "User not found or role not available"
         }
 
 # ... other routes and logic ...
