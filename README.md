@@ -21,14 +21,14 @@ const theme = createTheme({
 });
 
 const features = [
-  { name: 'View Program', component: 1 },
-  { name: 'Add/Edit Program', component: 2 },
-  { name: 'Flow Catalog', component: 3 },
-  { name: 'Program Calendar', component: 4 },
-  { name: 'System Availability', component: 5 },
+  { name: 'View Program', component: 1, icon: 'https://via.placeholder.com/150' }, // Placeholder icon URL
+  { name: 'Add/Edit Program', component: 2, icon: 'https://via.placeholder.com/150' }, // Placeholder icon URL
+  { name: 'Flow Catalog', component: 3, icon: 'https://via.placeholder.com/150' }, // Placeholder icon URL
+  { name: 'Program Calendar', component: 4, icon: 'https://via.placeholder.com/150' }, // Placeholder icon URL
+  { name: 'System Availability', component: 5, icon: 'https://via.placeholder.com/150' }, // Placeholder icon URL
 ];
 
-const defaultImage = 'path_to_default_image'; // Replace with your image path
+const defaultImage = 'https://via.placeholder.com/150'; // Placeholder image URL
 
 const StyledCard = styled(Card)({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -62,7 +62,7 @@ const LandingPageContent = ({ onCardClick }) => (
               <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
                 <CardMedia
                   component="img"
-                  image={defaultImage}
+                  image={feature.icon}
                   title={feature.name}
                   sx={{ height: '70%', width: '100%', objectFit: 'cover', mb: 1 }}
                 />
@@ -78,16 +78,24 @@ const LandingPageContent = ({ onCardClick }) => (
 
 const LandingPage = () => {
   const [selectedComponent, setSelectedComponent] = useState(0);
-  const [username, setUsername] = useState(null);
+  const [username, setUsername] = useState('mandloir');
   const [loading, setLoading] = useState(true);
+  const [userExists, setUserExists] = useState(false);
 
   useEffect(() => {
-    // Fetch the username from the root element's data-username attribute
-    const rootElement = document.getElementById('root');
-    const fetchedUsername = rootElement ? rootElement.getAttribute('data-username') : 'Guest';
-    setUsername(fetchedUsername);
-    setLoading(false);
-  }, []);
+    // Simulate checking the username in the database
+    setTimeout(() => {
+      const existingUsers = ['mandloir', 'user1', 'user2']; // Simulate existing users in the database
+      if (existingUsers.includes(username)) {
+        setUserExists(true);
+      } else {
+        setUserExists(false);
+        // Simulate adding the user to the database
+        console.log(`Adding ${username} to the database...`);
+      }
+      setLoading(false);
+    }, 1000); // Simulate a delay for checking username
+  }, [username]);
 
   const handleButtonClick = (component) => {
     setSelectedComponent(component);
@@ -116,9 +124,13 @@ const LandingPage = () => {
         <Toolbar>
           {loading ? (
             <CircularProgress color="inherit" />
-          ) : (
+          ) : userExists ? (
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Welcome, {username}!
+            </Typography>
+          ) : (
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              User {username} not found, adding to database...
             </Typography>
           )}
           {selectedComponent !== 0 && (
@@ -128,7 +140,7 @@ const LandingPage = () => {
           )}
         </Toolbar>
       </AppBar>
-      {renderComponent()}
+      {userExists && renderComponent()}
     </ThemeProvider>
   );
 };
