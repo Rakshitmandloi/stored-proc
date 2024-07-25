@@ -1,6 +1,79 @@
+# sql.py
+
+import pyodbc
+import requests
+
+class Database:
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+
+    def _execute_query(self, query, params=()):
+        with pyodbc.connect(self.connection_string) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            conn.commit()
+            return cursor
+
+    def check_user_exists(self, username):
+        query = "SELECT COUNT(*) FROM users WHERE user_name = ?"
+        cursor = self._execute_query(query, (username,))
+        return cursor.fetchone()[0] > 0
+
+    def add_user(self, user_name, role, fname, lname, email):
+        query = "{CALL AddUser(?, ?, ?, ?, ?)}"
+        self._execute_query(query, (user_name, role, fname, lname, email))
+
+    def get_user_details_from_api(self, user_id, password):
+        # Replace with the actual API endpoint and adjust as needed
+        url = "https://api.example.com/get_user_details"
+        response = requests.post(url, json={"user_id": user_id, "password": password})
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+
+
+# server.py
+
+from flask import Flask, request, jsonify
+from sql import Database
+
+app = Flask(__name__)
+db = Database('your_connection_string_here')
+
+@app.route('/check_user', methods=['POST'])
+def check_user():
+    username = request.json.get('username')
+    if db.check_user_exists(username):
+        return jsonify({"exists": True})
+    else:
+        return jsonify({"exists": False})
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    user_details = request.json
+    db.add_user(user_details['user_name'], user_details.get('role'), user_details.get('fname'), user_details.get('lname'), user_details.get('email'))
+    return jsonify({"success": True})
+
+@app.route('/get_user_details', methods=['POST'])
+def get_user_details():
+    user_id = request.json.get('user_id')
+    password = request.json.get('password')
+    user_details = db.get_user_details_from_api(user_id, password)
+    if user_details:
+        return jsonify(user_details)
+    else:
+        return jsonify({"error": "User details not found"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 import FlowCatalogView from './components/FlowCatalogView';
 import ViewProgramView from './components/ViewProgramView';
@@ -21,14 +94,14 @@ const theme = createTheme({
 });
 
 const features = [
-  { name: 'View Program', component: 1 },
-  { name: 'Add/Edit Program', component: 2 },
-  { name: 'Flow Catalog', component: 3 },
-  { name: 'Program Calendar', component: 4 },
-  { name: 'System Availability', component: 5 },
+  { name: 'View Program', component: 1, icon: 'https://via.placeholder.com/150' },
+  { name: 'Add/Edit Program', component: 2, icon: 'https://via.placeholder.com/150' },
+  { name: 'Flow Catalog', component: 3, icon: 'https://via.placeholder.com/150' },
+  { name: 'Program Calendar', component: 4, icon: 'https://via.placeholder.com/150' },
+  { name: 'System Availability', component: 5, icon: 'https://via.placeholder.com/150' },
 ];
 
-const defaultImage = 'path_to_default_image'; // Replace with your image path
+const defaultImage = 'https://via.placeholder.com/150';
 
 const StyledCard = styled(Card)({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -62,7 +135,7 @@ const LandingPageContent = ({ onCardClick }) => (
               <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
                 <CardMedia
                   component="img"
-                  image={defaultImage}
+                  image={feature.icon}
                   title={feature.name}
                   sx={{ height: '70%', width: '100%', objectFit: 'cover', mb: 1 }}
                 />
@@ -78,16 +151,36 @@ const LandingPageContent = ({ onCardClick }) => (
 
 const LandingPage = () => {
   const [selectedComponent, setSelectedComponent] = useState(0);
-  const [username, setUsername] = useState(null);
+  const [username, setUsername] = useState('mandloir');
   const [loading, setLoading] = useState(true);
+  const [userExists, setUserExists] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch the username from the root element's data-username attribute
-    const rootElement = document.getElementById('root');
-    const fetchedUsername = rootElement ? rootElement.getAttribute('data-username') : 'Guest';
-    setUsername(fetchedUsername);
-    setLoading(false);
-  }, []);
+    const checkUser = async () => {
+      try {
+        const response = await axios.post('/check_user', { username });
+        if (response.data.exists) {
+          setUserExists(true);
+        } else {
+          const userDetailsResponse = await axios.post('/get_user_details', { user_id: 'your_user_id', password: 'your_password' });
+          const userDetails = userDetailsResponse.data;
+          if (userDetails) {
+            await axios.post('/add_user', userDetails);
+            setUserExists(true);
+          } else {
+            setError('User details not found');
+          }
+        }
+      } catch (err) {
+        setError('Error checking user');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+  }, [username]);
 
   const handleButtonClick = (component) => {
     setSelectedComponent(component);
@@ -116,19 +209,25 @@ const LandingPage = () => {
         <Toolbar>
           {loading ? (
             <CircularProgress color="inherit" />
+          ) : userExists ? (
+            <>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Welcome, {username}!
+              </Typography>
+              {selectedComponent !== 0 && (
+                <Button color="inherit" onClick={() => setSelectedComponent(0)}>
+                  Back to Home
+                </Button>
+              )}
+            </>
           ) : (
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Welcome, {username}!
+              {error ? error : 'Adding user to database...'}
             </Typography>
-          )}
-          {selectedComponent !== 0 && (
-            <Button color="inherit" onClick={() => setSelectedComponent(0)}>
-              Back to Home
-            </Button>
           )}
         </Toolbar>
       </AppBar>
-      {renderComponent()}
+      {userExists && renderComponent()}
     </ThemeProvider>
   );
 };
