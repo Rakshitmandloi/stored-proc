@@ -1,30 +1,33 @@
 # sql.py
 
-import pyodbc
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 import requests
 
 class Database:
     def __init__(self, connection_string):
-        self.connection_string = connection_string
-
-    def _execute_query(self, query, params=()):
-        with pyodbc.connect(self.connection_string) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            conn.commit()
-            return cursor
+        self.engine = create_engine(connection_string)
+        self.Session = sessionmaker(bind=self.engine)
 
     def check_user_exists(self, username):
-        query = "SELECT COUNT(*) FROM users WHERE user_name = ?"
-        cursor = self._execute_query(query, (username,))
-        return cursor.fetchone()[0] > 0
+        query = text("SELECT COUNT(*) FROM users WHERE user_name = :username")
+        with self.Session() as session:
+            result = session.execute(query, {'username': username}).scalar()
+            return result > 0
 
     def add_user(self, user_name, role, fname, lname, email):
-        query = "{CALL AddUser(?, ?, ?, ?, ?)}"
-        self._execute_query(query, (user_name, role, fname, lname, email))
+        query = text("CALL AddUser(:user_name, :role, :fname, :lname, :email)")
+        with self.Session() as session:
+            session.execute(query, {
+                'user_name': user_name,
+                'role': role,
+                'fname': fname,
+                'lname': lname,
+                'email': email
+            })
+            session.commit()
 
     def get_user_details_from_api(self, user_id, password):
-        # Replace with the actual API endpoint and adjust as needed
         url = "https://api.example.com/get_user_details"
         response = requests.post(url, json={"user_id": user_id, "password": password})
         if response.status_code == 200:
@@ -32,14 +35,13 @@ class Database:
         else:
             return None
 
-
 # server.py
 
 from flask import Flask, request, jsonify
 from sql import Database
 
 app = Flask(__name__)
-db = Database('your_connection_string_here')
+db = Database('sqlite:///your_database.db')
 
 @app.route('/check_user', methods=['POST'])
 def check_user():
@@ -67,8 +69,6 @@ def get_user_details():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
 
 import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
@@ -233,3 +233,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
