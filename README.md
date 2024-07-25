@@ -1,30 +1,6 @@
-<!doctype html>
-<html>
-<head>
-    <title>Fetch Windows Username</title>
-</head>
-<body>
-<script type="text/javascript">
-    function getUsername() {
-        try {
-            var WinNetwork = new ActiveXObject("WScript.Network");
-            return WinNetwork.UserName;
-        } catch (e) {
-            console.error("ActiveXObject not supported.");
-            return "Unknown User";
-        }
-    }
-
-    window.localStorage.setItem("username", getUsername());
-</script>
-</body>
-</html>
-
-
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Card, CardActionArea, Grid, AppBar, Toolbar, CircularProgress } from '@mui/material';
-import { styled, createTheme, ThemeProvider } from '@mui/system';
-import axios from 'axios';
+import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
 import FlowCatalogView from './components/FlowCatalogView';
 import ViewProgramView from './components/ViewProgramView';
@@ -103,10 +79,15 @@ const LandingPageContent = ({ onCardClick }) => (
 const LandingPage = () => {
   const [selectedComponent, setSelectedComponent] = useState(0);
   const [username, setUsername] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const username = window.localStorage.getItem("username");
-    setUsername(username);
+    // Simulate fetching the username from the environment
+    setTimeout(() => {
+      const fetchedUsername = "mockedUsername"; // Replace this with the actual method to get the username
+      setUsername(fetchedUsername);
+      setLoading(false);
+    }, 1000); // Simulate a delay for fetching username
   }, []);
 
   const handleButtonClick = (component) => {
@@ -136,12 +117,12 @@ const LandingPage = () => {
       {selectedComponent === 0 && (
         <AppBar position="static" color="default">
           <Toolbar>
-            {username ? (
+            {loading ? (
+              <CircularProgress color="inherit" />
+            ) : (
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Welcome, {username}!
               </Typography>
-            ) : (
-              <CircularProgress color="inherit" />
             )}
             {selectedComponent !== 0 && (
               <Button color="inherit" onClick={() => setSelectedComponent(0)}>
@@ -156,24 +137,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React App</title>
-    <script type="text/javascript">
-        // Check if the username is already set in localStorage
-        if (!localStorage.getItem("username")) {
-            window.location.href = "/getUser.html";
-        }
-    </script>
-</head>
-<body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-</body>
-</html>
-
-
