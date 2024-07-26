@@ -2,68 +2,75 @@
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-import requests
+import pandas as pd
 
 class DBConnections:
     def __init__(self, server, port, password, user, db):
         self.conn = create_engine(f'mysql+pymysql://{user}:{password}@{server}:{port}/{db}')
-        self.Session = sessionmaker(bind=self.conn)
         self.cached_sql = pd.DataFrame()
 
     def fetch(self, query):
-        with self.Session() as session:
-            result = session.execute(text(query))
-            return result.fetchall()
+        print(f"Query: {query}")
+        return pd.read_sql(query, self.conn)
 
-    def fetch_query(self, self, process):
+    def fetch_query(self, process):
         if len(self.cached_sql) == 0 or len(self.cached_sql[self.cached_sql["process_name"] != process]) == 0:
             self.cached_sql = self.fetch('select * from f2b_query')
         return self.cached_sql.loc[self.cached_sql["process_name"] == process, 'query'].item()
 
-    def fetch_data(self, self, process, parameters={}):
+    def fetch_data(self, process, parameters={}):
         query = self.fetch_query(process).format(**parameters)
-        with self.Session() as session:
-            result = session.execute(text(query))
-            return result.fetchall()
+        return self.fetch(query).to_dict(orient='records')
 
-    def execute_stored_proc(self, self, procedure_name, params):
-        query = text(f"CALL {procedure_name}(:a, :b, :c, :d, :e)")
+    def execute_stored_proc(self, procedure_name, params):
+        sql_query = text(f"CALL {procedure_name}(:a, :b, :c, :d, :e)")
         variables = {
             "a": params[0],
             "b": params[1],
             "c": params[2],
             "d": params[3],
-            "e": "mandloir"  # Use 'mandloir' as per the provided logic
+            "e": "mandloir"
         }
-        with self.Session() as session:
-            session.execute(query, variables)
-            session.commit()
+        with self.conn.connect() as connection:
+            connection.execute(sql_query, variables)
+            connection.commit()
 
     def check_user_exists(self, username):
-        query = text("SELECT COUNT(*) FROM users WHERE user_name = :username")
-        with self.Session() as session:
-            result = session.execute(query, {'username': username}).scalar()
-            return result > 0
+        query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
+        result = self.fetch(query)
+        return result.iloc[0, 0] > 0
 
     def add_user(self, user_name, role, fname, lname, email):
-        query = text("CALL AddUser(:user_name, :role, :fname, :lname, :email)")
-        with self.Session() as session:
-            session.execute(query, {
-                'user_name': user_name,
-                'role': role,
-                'fname': fname,
-                'lname': lname,
-                'email': email
-            })
-            session.commit()
+        sql_query = text("CALL AddUser(:user_name, :role, :fname, :lname, :email)")
+        variables = {
+            'user_name': user_name,
+            'role': role,
+            'fname': fname,
+            'lname': lname,
+            'email': email
+        }
+        with self.conn.connect() as connection:
+            connection.execute(sql_query, variables)
+            connection.commit()
 
     def get_user_details_from_api(self, user_id, password):
+        import requests
         url = "https://api.example.com/get_user_details"
         response = requests.post(url, json={"user_id": user_id, "password": password})
         if response.status_code == 200:
             return response.json()
         else:
             return None
+
+# Example usage
+db = DBConnections(
+    server=os.getenv("DB_SERVER"),
+    port=os.getenv("DB_PORT"),
+    password=os.getenv("DB_PASSWORD"),
+    user=os.getenv("DB_USER"),
+    db=os.getenv("DB_DB")
+)
+
 
 # Example usage
 db = DBConnections(
