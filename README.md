@@ -4,10 +4,40 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import requests
 
-class Database:
-    def __init__(self, connection_string):
-        self.engine = create_engine(connection_string)
-        self.Session = sessionmaker(bind=self.engine)
+class DBConnections:
+    def __init__(self, server, port, password, user, db):
+        self.conn = create_engine(f'mysql+pymysql://{user}:{password}@{server}:{port}/{db}')
+        self.Session = sessionmaker(bind=self.conn)
+        self.cached_sql = pd.DataFrame()
+
+    def fetch(self, query):
+        with self.Session() as session:
+            result = session.execute(text(query))
+            return result.fetchall()
+
+    def fetch_query(self, self, process):
+        if len(self.cached_sql) == 0 or len(self.cached_sql[self.cached_sql["process_name"] != process]) == 0:
+            self.cached_sql = self.fetch('select * from f2b_query')
+        return self.cached_sql.loc[self.cached_sql["process_name"] == process, 'query'].item()
+
+    def fetch_data(self, self, process, parameters={}):
+        query = self.fetch_query(process).format(**parameters)
+        with self.Session() as session:
+            result = session.execute(text(query))
+            return result.fetchall()
+
+    def execute_stored_proc(self, self, procedure_name, params):
+        query = text(f"CALL {procedure_name}(:a, :b, :c, :d, :e)")
+        variables = {
+            "a": params[0],
+            "b": params[1],
+            "c": params[2],
+            "d": params[3],
+            "e": "mandloir"  # Use 'mandloir' as per the provided logic
+        }
+        with self.Session() as session:
+            session.execute(query, variables)
+            session.commit()
 
     def check_user_exists(self, username):
         query = text("SELECT COUNT(*) FROM users WHERE user_name = :username")
@@ -35,13 +65,30 @@ class Database:
         else:
             return None
 
+# Example usage
+db = DBConnections(
+    server=getenv("DB_SERVER"),
+    port=getenv("DB_PORT"),
+    password=getenv("DB_PASSWORD"),
+    user=getenv("DB_USER"),
+    db=getenv("DB_DB")
+)
+
+
 # server.py
 
 from flask import Flask, request, jsonify
-from sql import Database
+from sql import DBConnections
+import os
 
 app = Flask(__name__)
-db = Database('sqlite:///your_database.db')
+db = DBConnections(
+    server=os.getenv("DB_SERVER"),
+    port=os.getenv("DB_PORT"),
+    password=os.getenv("DB_PASSWORD"),
+    user=os.getenv("DB_USER"),
+    db=os.getenv("DB_DB")
+)
 
 @app.route('/check_user', methods=['POST'])
 def check_user():
@@ -69,6 +116,7 @@ def get_user_details():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
