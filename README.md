@@ -1,3 +1,59 @@
+from flask import Flask, jsonify
+import http.client
+import json
+from sql import db
+
+app = Flask(__name__)
+
+@app.route('/check_user/<username>', methods=['GET'])
+def check_user(username):
+    # Check if user exists in the database
+    user_exists_query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
+    user_exists = db.fetch(user_exists_query)['COUNT(*)'] > 0
+
+    if user_exists:
+        return jsonify({'status': 'success', 'message': 'User exists in the database'}), 200
+    else:
+        # Fetch user details from external API
+        conn = http.client.HTTPSConnection("api.example.com")
+        conn.request("GET", f"/get_user_details/{username}")
+        response = conn.getresponse()
+        
+        if response.status == 200:
+            user_details = json.loads(response.read().decode())
+            # Insert user details into the database using stored procedure
+            add_user_sp = "AddUser"
+            add_user_params = {
+                'user_name': user_details['user_name'],
+                'role': user_details.get('role', None),
+                'fname': user_details.get('fname', None),
+                'lname': user_details.get('lname', None),
+                'email': user_details.get('email', None),
+            }
+            db.execute_stored_proc(add_user_sp, add_user_params)
+            return jsonify({'status': 'success', 'message': 'User added to the database'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'User not found in external API'}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
 import React from 'react';
 import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, Paper } from '@mui/material';
