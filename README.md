@@ -1,3 +1,15 @@
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Roboto Mono, monospace', // Use Roboto Mono for a techie look
+    h6: {
+      fontWeight: 'bold',
+      letterSpacing: '0.5px',
+    },
+  },
+});
+
+
+
 const StyledCard = styled(Card)({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   color: 'white',
