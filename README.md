@@ -1,3 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+import React from 'react';
+import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, Paper } from '@mui/material';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import './App.css'; // Ensure this imports your CSS file where Orbitron is imported
+
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Orbitron, sans-serif', // Use Orbitron for a sci-fi look
+    h6: {
+      fontWeight: 'bold',
+      letterSpacing: '1px',
+    },
+  },
+});
+
+const features = [
+  { name: 'View Program', component: 1, image: 'path_to_view_program_image' },
+  { name: 'Add/Edit Program', component: 2, image: 'path_to_add_edit_program_image' },
+  { name: 'Flow Catalog', component: 3, image: 'path_to_flow_catalog_image' },
+  { name: 'Program Calendar', component: 4, image: 'path_to_program_calendar_image' },
+  { name: 'System Availability', component: 5, image: 'path_to_system_availability_image' },
+];
+
+const StyledCard = styled(Card)({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  color: 'white',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 16,
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: 'grey',
+  },
+});
+
+const CenteredCardActionArea = styled(CardActionArea)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  flexDirection: 'column',
+});
+
+const LandingPageContent = ({ onCardClick }) => (
+  <ThemeProvider theme={theme}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center' }}>
+      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid container rowSpacing={3} columnSpacing={3} justifyContent="center" alignItems="center">
+          {features.map((feature, index) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
+              <Paper elevation={4} sx={{ height: '100%' }}>
+                <StyledCard>
+                  <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
+                    <CardMedia
+                      component="img"
+                      image={feature.image}
+                      title={feature.name}
+                      sx={{ height: '70%', width: '100%', objectFit: 'contain', mb: 1 }}
+                    />
+                    <Typography variant="h6" sx={{ fontFamily: 'Orbitron, sans-serif' }}>{feature.name}</Typography>
+                  </CenteredCardActionArea>
+                </StyledCard>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Container>
+  </ThemeProvider>
+);
+
+export default LandingPageContent;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const theme = createTheme({
   typography: {
     fontFamily: 'Roboto Mono, monospace', // Use Roboto Mono for a techie look
