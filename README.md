@@ -1,406 +1,6 @@
-from flask import Flask, jsonify
-import http.client
-import json
-from sql import db
-
-app = Flask(__name__)
-
-# Store the API credentials in the backend
-API_USERNAME = "your_api_username"
-API_PASSWORD = "your_api_password"
-
-@app.route('/check_user/<username>', methods=['GET'])
-def check_user(username):
-    # Make an HTTPS request to the external API
-    conn = http.client.HTTPSConnection("api.example.com")
-    api_endpoint = f"/get_user_details/{username}?password={API_PASSWORD}"
-    conn.request("GET", api_endpoint, headers={"Authorization": f"Basic {API_USERNAME}:{API_PASSWORD}"})
-    response = conn.getresponse()
-
-    if response.status == 200:
-        user_details = json.loads(response.read().decode())
-        if user_details.get('result', {}).get('user_name') == username:
-            # Check if the user already exists in the database
-            user_exists_query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
-            user_exists = db.fetch(user_exists_query).iloc[0, 0] > 0
-
-            if user_exists:
-                return jsonify({'status': 'success', 'message': 'User already exists in the database'}), 200
-            else:
-                # Insert user details into the database using a stored procedure
-                add_user_sp = "AddUser"
-                add_user_params = {
-                    'user_name': user_details['result']['user_name'],
-                    'role': user_details['result'].get('role', None),
-                    'fname': user_details['result'].get('fname', None),
-                    'lname': user_details['result'].get('lname', None),
-                    'email': user_details['result'].get('email', None),
-                }
-                db.execute_stored_proc(add_user_sp, add_user_params)
-                return jsonify({'status': 'success', 'message': 'User added to the database'}), 200
-        else:
-            return jsonify({'status': 'error', 'message': 'Username does not match'}), 403
-    else:
-        return jsonify({'status': 'error', 'message': 'Failed to retrieve user details from external API'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-from flask import Flask, jsonify
-import http.client
-import json
-from sql import db
-
-app = Flask(__name__)
-
-@app.route('/check_user/<username>', methods=['GET'])
-def check_user(username):
-    # Check if user exists in the database
-    user_exists_query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
-    user_exists = db.fetch(user_exists_query)['COUNT(*)'] > 0
-
-    if user_exists:
-        return jsonify({'status': 'success', 'message': 'User exists in the database'}), 200
-    else:
-        # Fetch user details from external API
-        conn = http.client.HTTPSConnection("api.example.com")
-        conn.request("GET", f"/get_user_details/{username}")
-        response = conn.getresponse()
-        
-        if response.status == 200:
-            user_details = json.loads(response.read().decode())
-            # Insert user details into the database using stored procedure
-            add_user_sp = "AddUser"
-            add_user_params = {
-                'user_name': user_details['user_name'],
-                'role': user_details.get('role', None),
-                'fname': user_details.get('fname', None),
-                'lname': user_details.get('lname', None),
-                'email': user_details.get('email', None),
-            }
-            db.execute_stored_proc(add_user_sp, add_user_params)
-            return jsonify({'status': 'success', 'message': 'User added to the database'}), 200
-        else:
-            return jsonify({'status': 'error', 'message': 'User not found in external API'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
-import React from 'react';
-import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, Paper } from '@mui/material';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import './App.css'; // Ensure this imports your CSS file where Orbitron is imported
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Orbitron, sans-serif', // Use Orbitron for a sci-fi look
-    h6: {
-      fontWeight: 'bold',
-      letterSpacing: '1px',
-    },
-  },
-});
-
-const features = [
-  { name: 'View Program', component: 1, image: 'path_to_view_program_image' },
-  { name: 'Add/Edit Program', component: 2, image: 'path_to_add_edit_program_image' },
-  { name: 'Flow Catalog', component: 3, image: 'path_to_flow_catalog_image' },
-  { name: 'Program Calendar', component: 4, image: 'path_to_program_calendar_image' },
-  { name: 'System Availability', component: 5, image: 'path_to_system_availability_image' },
-];
-
-const StyledCard = styled(Card)({
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  color: 'white',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 16,
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: 'grey',
-  },
-});
-
-const CenteredCardActionArea = styled(CardActionArea)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100%',
-  flexDirection: 'column',
-});
-
-const LandingPageContent = ({ onCardClick }) => (
-  <ThemeProvider theme={theme}>
-    <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center' }}>
-      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Grid container rowSpacing={3} columnSpacing={3} justifyContent="center" alignItems="center">
-          {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
-              <Paper elevation={4} sx={{ height: '100%' }}>
-                <StyledCard>
-                  <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
-                    <CardMedia
-                      component="img"
-                      image={feature.image}
-                      title={feature.name}
-                      sx={{ height: '70%', width: '100%', objectFit: 'contain', mb: 1 }}
-                    />
-                    <Typography variant="h6" sx={{ fontFamily: 'Orbitron, sans-serif' }}>{feature.name}</Typography>
-                  </CenteredCardActionArea>
-                </StyledCard>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </Container>
-  </ThemeProvider>
-);
-
-export default LandingPageContent;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Roboto Mono, monospace', // Use Roboto Mono for a techie look
-    h6: {
-      fontWeight: 'bold',
-      letterSpacing: '0.5px',
-    },
-  },
-});
-
-
-
-const StyledCard = styled(Card)({
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  color: 'white',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 16,
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: 'grey',
-  },
-});
-
-const CenteredCardActionArea = styled(CardActionArea)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100%',
-  flexDirection: 'column',
-});
-
-const LandingPageContent = ({ onCardClick }) => (
-  <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center' }}>
-    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Grid container rowSpacing={3} columnSpacing={3} justifyContent="center" alignItems="center">
-        {features.map((feature, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
-            <Paper elevation={4} sx={{ height: '100%' }}>
-              <StyledCard>
-                <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
-                  <CardMedia
-                    component="img"
-                    image={feature.image}
-                    title={feature.name}
-                    sx={{ height: '70%', width: '100%', objectFit: 'contain', mb: 1 }}
-                  />
-                  <Typography variant="h6">{feature.name}</Typography>
-                </CenteredCardActionArea>
-              </StyledCard>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  </Container>
-);
-
-------------
-
-# sql.py
-
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-import pandas as pd
-
-class DBConnections:
-    def __init__(self, server, port, password, user, db):
-        self.conn = create_engine(f'mysql+pymysql://{user}:{password}@{server}:{port}/{db}')
-        self.cached_sql = pd.DataFrame()
-
-    def fetch(self, query):
-        print(f"Query: {query}")
-        return pd.read_sql(query, self.conn)
-
-    def fetch_query(self, process):
-        if len(self.cached_sql) == 0 or len(self.cached_sql[self.cached_sql["process_name"] != process]) == 0:
-            self.cached_sql = self.fetch('select * from f2b_query')
-        return self.cached_sql.loc[self.cached_sql["process_name"] == process, 'query'].item()
-
-    def fetch_data(self, process, parameters={}):
-        query = self.fetch_query(process).format(**parameters)
-        return self.fetch(query).to_dict(orient='records')
-
-    def execute_stored_proc(self, procedure_name, params):
-        sql_query = text(f"CALL {procedure_name}(:a, :b, :c, :d, :e)")
-        variables = {
-            "a": params[0],
-            "b": params[1],
-            "c": params[2],
-            "d": params[3],
-            "e": "mandloir"
-        }
-        with self.conn.connect() as connection:
-            connection.execute(sql_query, variables)
-            connection.commit()
-
-    def check_user_exists(self, username):
-        query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
-        result = self.fetch(query)
-        return result.iloc[0, 0] > 0
-
-    def add_user(self, user_name, role, fname, lname, email):
-        sql_query = text("CALL AddUser(:user_name, :role, :fname, :lname, :email)")
-        variables = {
-            'user_name': user_name,
-            'role': role,
-            'fname': fname,
-            'lname': lname,
-            'email': email
-        }
-        with self.conn.connect() as connection:
-            connection.execute(sql_query, variables)
-            connection.commit()
-
-    def get_user_details_from_api(self, user_id, password):
-        import requests
-        url = "https://api.example.com/get_user_details"
-        response = requests.post(url, json={"user_id": user_id, "password": password})
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
-
-# Example usage
-db = DBConnections(
-    server=os.getenv("DB_SERVER"),
-    port=os.getenv("DB_PORT"),
-    password=os.getenv("DB_PASSWORD"),
-    user=os.getenv("DB_USER"),
-    db=os.getenv("DB_DB")
-)
-
-
-# Example usage
-db = DBConnections(
-    server=getenv("DB_SERVER"),
-    port=getenv("DB_PORT"),
-    password=getenv("DB_PASSWORD"),
-    user=getenv("DB_USER"),
-    db=getenv("DB_DB")
-)
-
-
-# server.py
-
-from flask import Flask, request, jsonify
-from sql import DBConnections
-import os
-
-app = Flask(__name__)
-db = DBConnections(
-    server=os.getenv("DB_SERVER"),
-    port=os.getenv("DB_PORT"),
-    password=os.getenv("DB_PASSWORD"),
-    user=os.getenv("DB_USER"),
-    db=os.getenv("DB_DB")
-)
-
-@app.route('/check_user', methods=['POST'])
-def check_user():
-    username = request.json.get('username')
-    if db.check_user_exists(username):
-        return jsonify({"exists": True})
-    else:
-        return jsonify({"exists": False})
-
-@app.route('/add_user', methods=['POST'])
-def add_user():
-    user_details = request.json
-    db.add_user(user_details['user_name'], user_details.get('role'), user_details.get('fname'), user_details.get('lname'), user_details.get('email'))
-    return jsonify({"success": True})
-
-@app.route('/get_user_details', methods=['POST'])
-def get_user_details():
-    user_id = request.json.get('user_id')
-    password = request.json.get('password')
-    user_details = db.get_user_details_from_api(user_id, password)
-    if user_details:
-        return jsonify(user_details)
-    else:
-        return jsonify({"error": "User details not found"}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
 import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Card, CardActionArea, Grid, CardMedia, AppBar, Toolbar, CircularProgress, Button } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
-
 import FlowCatalogView from './components/FlowCatalogView';
 import ViewProgramView from './components/ViewProgramView';
 import SystemAvailabilityView from './components/SystemAvailabilityView';
@@ -417,17 +17,23 @@ const theme = createTheme({
       main: '#BABABA',
     },
   },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif', // Change this to a modern, techie font
+    h6: {
+      fontFamily: 'Roboto Mono, monospace', // Example of a modern techie font
+    },
+  },
 });
 
 const features = [
-  { name: 'View Program', component: 1, icon: 'https://via.placeholder.com/150' },
-  { name: 'Add/Edit Program', component: 2, icon: 'https://via.placeholder.com/150' },
-  { name: 'Flow Catalog', component: 3, icon: 'https://via.placeholder.com/150' },
-  { name: 'Program Calendar', component: 4, icon: 'https://via.placeholder.com/150' },
-  { name: 'System Availability', component: 5, icon: 'https://via.placeholder.com/150' },
+  { name: 'View Program', component: 1, icon: 'path_to_icon_1' },
+  { name: 'Add/Edit Program', component: 2, icon: 'path_to_icon_2' },
+  { name: 'Flow Catalog', component: 3, icon: 'path_to_icon_3' },
+  { name: 'Program Calendar', component: 4, icon: 'path_to_icon_4' },
+  { name: 'System Availability', component: 5, icon: 'path_to_icon_5' },
 ];
 
-const defaultImage = 'https://via.placeholder.com/150';
+const defaultImage = 'path_to_default_image'; // Replace with your image path
 
 const StyledCard = styled(Card)({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -458,10 +64,10 @@ const LandingPageContent = ({ onCardClick }) => (
         {features.map((feature) => (
           <Grid item xs={12} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
             <StyledCard>
-              <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
+              <CenteredCardActionArea onClick={() => onCardClick(feature.component, feature.name)}>
                 <CardMedia
                   component="img"
-                  image={feature.icon}
+                  image={feature.icon || defaultImage}
                   title={feature.name}
                   sx={{ height: '70%', width: '100%', objectFit: 'cover', mb: 1 }}
                 />
@@ -477,39 +83,33 @@ const LandingPageContent = ({ onCardClick }) => (
 
 const LandingPage = () => {
   const [selectedComponent, setSelectedComponent] = useState(0);
-  const [username, setUsername] = useState('mandloir');
+  const [viewName, setViewName] = useState('');
+  const [username] = useState('mandloir');
   const [loading, setLoading] = useState(true);
-  const [userExists, setUserExists] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    const checkUser = async () => {
+    const fetchUserDetails = async () => {
       try {
-        const response = await axios.post('/check_user', { username });
-        if (response.data.exists) {
-          setUserExists(true);
+        const response = await fetch(`/check_user/${username}`);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          setLoading(false);
         } else {
-          const userDetailsResponse = await axios.post('/get_user_details', { user_id: 'your_user_id', password: 'your_password' });
-          const userDetails = userDetailsResponse.data;
-          if (userDetails) {
-            await axios.post('/add_user', userDetails);
-            setUserExists(true);
-          } else {
-            setError('User details not found');
-          }
+          setErrorMessage(result.message);
         }
-      } catch (err) {
-        setError('Error checking user');
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        setErrorMessage('Failed to fetch user details');
       }
     };
 
-    checkUser();
+    fetchUserDetails();
   }, [username]);
 
-  const handleButtonClick = (component) => {
+  const handleButtonClick = (component, name) => {
     setSelectedComponent(component);
+    setViewName(name);
   };
 
   const renderComponent = () => {
@@ -529,34 +129,40 @@ const LandingPage = () => {
     }
   };
 
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (errorMessage) {
+    return <Typography variant="h6" color="error">{errorMessage}</Typography>;
+  }
+
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static" color="default">
-        <Toolbar>
-          {loading ? (
-            <CircularProgress color="inherit" />
-          ) : userExists ? (
-            <>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Welcome, {username}!
-              </Typography>
-              {selectedComponent !== 0 && (
-                <Button color="inherit" onClick={() => setSelectedComponent(0)}>
-                  Back to Home
-                </Button>
-              )}
-            </>
-          ) : (
+      {selectedComponent !== 0 && (
+        <AppBar position="static" color="default">
+          <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {error ? error : 'Adding user to database...'}
+              {viewName}
             </Typography>
-          )}
-        </Toolbar>
-      </AppBar>
-      {userExists && renderComponent()}
+            <Button color="inherit" onClick={() => setSelectedComponent(0)}>
+              Back to Home
+            </Button>
+          </Toolbar>
+        </AppBar>
+      )}
+      {renderComponent()}
+      {selectedComponent === 0 && (
+        <AppBar position="static" color="default">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Welcome, {username}!
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
     </ThemeProvider>
   );
 };
 
 export default LandingPage;
-
