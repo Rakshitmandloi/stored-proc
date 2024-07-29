@@ -1,3 +1,53 @@
+const StyledCard = styled(Card)({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  color: 'white',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 16,
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: 'grey',
+  },
+});
+
+const CenteredCardActionArea = styled(CardActionArea)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  flexDirection: 'column',
+});
+
+const LandingPageContent = ({ onCardClick }) => (
+  <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center' }}>
+    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Grid container rowSpacing={3} columnSpacing={3} justifyContent="center" alignItems="center">
+        {features.map((feature, index) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={feature.name} sx={{ height: '200px' }}>
+            <Paper elevation={4} sx={{ height: '100%' }}>
+              <StyledCard>
+                <CenteredCardActionArea onClick={() => onCardClick(feature.component)}>
+                  <CardMedia
+                    component="img"
+                    image={feature.image}
+                    title={feature.name}
+                    sx={{ height: '70%', width: '100%', objectFit: 'contain', mb: 1 }}
+                  />
+                  <Typography variant="h6">{feature.name}</Typography>
+                </CenteredCardActionArea>
+              </StyledCard>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  </Container>
+);
+
+------------
+
 # sql.py
 
 from sqlalchemy import create_engine, text
