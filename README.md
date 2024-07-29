@@ -5,6 +5,70 @@ from sql import db
 
 app = Flask(__name__)
 
+# Store the API credentials in the backend
+API_USERNAME = "your_api_username"
+API_PASSWORD = "your_api_password"
+
+@app.route('/check_user/<username>', methods=['GET'])
+def check_user(username):
+    # Make an HTTPS request to the external API
+    conn = http.client.HTTPSConnection("api.example.com")
+    api_endpoint = f"/get_user_details/{username}?password={API_PASSWORD}"
+    conn.request("GET", api_endpoint, headers={"Authorization": f"Basic {API_USERNAME}:{API_PASSWORD}"})
+    response = conn.getresponse()
+
+    if response.status == 200:
+        user_details = json.loads(response.read().decode())
+        if user_details.get('result', {}).get('user_name') == username:
+            # Check if the user already exists in the database
+            user_exists_query = f"SELECT COUNT(*) FROM users WHERE user_name = '{username}'"
+            user_exists = db.fetch(user_exists_query).iloc[0, 0] > 0
+
+            if user_exists:
+                return jsonify({'status': 'success', 'message': 'User already exists in the database'}), 200
+            else:
+                # Insert user details into the database using a stored procedure
+                add_user_sp = "AddUser"
+                add_user_params = {
+                    'user_name': user_details['result']['user_name'],
+                    'role': user_details['result'].get('role', None),
+                    'fname': user_details['result'].get('fname', None),
+                    'lname': user_details['result'].get('lname', None),
+                    'email': user_details['result'].get('email', None),
+                }
+                db.execute_stored_proc(add_user_sp, add_user_params)
+                return jsonify({'status': 'success', 'message': 'User added to the database'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'Username does not match'}), 403
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to retrieve user details from external API'}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Flask, jsonify
+import http.client
+import json
+from sql import db
+
+app = Flask(__name__)
+
 @app.route('/check_user/<username>', methods=['GET'])
 def check_user(username):
     # Check if user exists in the database
