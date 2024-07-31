@@ -1,41 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ViewForm from './ViewForm';
-import ViewForm2 from './ViewForm2';
 
 const ViewNewForm = ({ formName, processData, data, user, changeUser, programId, setProgramId, value }) => {
-  const [count, setCount] = useState(0);
-  const [progId, setProgId] = useState(3);
-  const [dat, setDat] = useState();
+    const [count, setCount] = useState(0);
+    const [progId, setProgId] = useState();
+    const [dat, setDat] = useState();
 
-  const handleProcessData = (newData) => {
-    processData(newData); // Call the processData function passed down from the parent
-    setDat(newData); // Update the local state if needed
-  };
+    useEffect(() => {
+        processData(dat);
+    }, [dat, processData]);
 
-  return (
-    <>
-      <ViewForm
-        processData={handleProcessData}
-        formName={`form${value + 1}`}
-        data={dat}
-        count={count}
-        setCount={setCount}
-        programId={progId}
-        setProgramId={setProgId}
-      />
-      {dat && (
-        <ViewForm2
-          processData={handleProcessData}
-          formName={`form${value + 1}`}
-          data={dat}
-          count={count}
-          setCount={setCount}
-          programId={progId}
-          setProgramId={setProgId}
-        />
-      )}
-    </>
-  );
-};
+    return (
+        <div>
+            <ViewForm
+                processData={setDat}
+                formName={`${formName}${value + 1}`}
+                data={dat}
+                count={count}
+                setCount={setCount}
+                programId={progId}
+                setProgramId={setProgId}
+            />
+            <ViewForm2
+                processData={setDat}
+                formName={`${formName}${value + 1}`}
+                data={dat}
+                count={count}
+                setCount={setCount}
+                programId={progId}
+                setProgramId={setProgId}
+            />
+            {/* Render individual properties */}
+            <div>{`Form Name: ${formName}`}</div>
+            <div>{`Project Name: ${projectName}`}</div>
+            <div>{`Project Lead: ${projectLead}`}</div>
+            <div>{`Objective: ${objective}`}</div>
+            <div>{`PM: ${pm}`}</div>
+        </div>
+    );
+}
 
 export default ViewNewForm;
