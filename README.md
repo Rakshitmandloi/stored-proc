@@ -14,20 +14,26 @@ const theme = createTheme({
 });
 
 const SystemAvailabilityView = () => {
-  const paperStyle = {
+  const containerStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh', // Full viewport height
+  };
+
+  const paperStyle = {
+    padding: '20px', // Add some padding for better appearance
     fontSize: '24px', // Adjust font size as needed
     fontFamily: 'Arial, sans-serif', // Change font family if needed
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Paper elevation={3} style={paperStyle}>
-        System Availability
-      </Paper>
+      <div style={containerStyle}>
+        <Paper elevation={3} style={paperStyle}>
+          System Availability
+        </Paper>
+      </div>
     </ThemeProvider>
   );
 };
