@@ -11,7 +11,7 @@ const StyledCard = styled(Card)({
   },
 });
 
-const LandingPageContent = ({ onCardClick, features }) => {
+const LandingPageContent = ({ onCardClick, features = [] }) => {
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Typography variant="h1">Landing Page</Typography>
