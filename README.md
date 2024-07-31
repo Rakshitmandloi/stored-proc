@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Typography, Card, CardActionArea, CardContent, Button, CircularProgress } from '@mui/material';
+import { Container, Grid, Typography, Card, CardActionArea, CardContent, Button, CircularProgress, AppBar, Toolbar, IconButton } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import MenuIcon from '@mui/icons-material/Menu';
 import SvgIcon from '@mui/material/SvgIcon';
 
 const theme = createTheme({
@@ -110,15 +111,25 @@ const LandingPage = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6">
+            Dashboard
+          </Typography>
+        </Toolbar>
+      </AppBar>
       <Container maxWidth="xl">
         {loading ? (
           <CircularProgress color="inherit" />
         ) : (
           <>
-            <Typography variant="h3" component="div" sx={{ flexGrow: 1, textAlign: 'left' }}>
+            <Typography variant="h3" component="div" sx={{ flexGrow: 1, textAlign: 'left', marginTop: 2 }}>
               Hello, {username}
             </Typography>
-            <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', marginTop: 2 }}>
               Welcome to the Dashboard
             </Typography>
             {selectedComponent !== 0 && (
