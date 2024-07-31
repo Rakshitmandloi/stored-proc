@@ -1,43 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import ViewForm from './ViewForm';
+import React from 'react';
+import Paper from '@mui/material/Paper';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-const ViewNewForm = ({ formName, processData, data, user, changeUser, programId, setProgramId, value }) => {
-    const [count, setCount] = useState(0);
-    const [progId, setProgId] = useState();
-    const [dat, setDat] = useState();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#beeees',
+    },
+    secondary: {
+      main: '#BABABA',
+    },
+  },
+});
 
-    useEffect(() => {
-        processData(dat);
-    }, [dat, processData]);
+const SystemAvailabilityView = () => {
+  const paperStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh', // Full viewport height
+    fontSize: '24px', // Adjust font size as needed
+    fontFamily: 'Arial, sans-serif', // Change font family if needed
+  };
 
-    return (
-        <div>
-            <ViewForm
-                processData={setDat}
-                formName={`${formName}${value + 1}`}
-                data={dat}
-                count={count}
-                setCount={setCount}
-                programId={progId}
-                setProgramId={setProgId}
-            />
-            <ViewForm2
-                processData={setDat}
-                formName={`${formName}${value + 1}`}
-                data={dat}
-                count={count}
-                setCount={setCount}
-                programId={progId}
-                setProgramId={setProgId}
-            />
-            {/* Render individual properties */}
-            <div>{`Form Name: ${formName}`}</div>
-            <div>{`Project Name: ${projectName}`}</div>
-            <div>{`Project Lead: ${projectLead}`}</div>
-            <div>{`Objective: ${objective}`}</div>
-            <div>{`PM: ${pm}`}</div>
-        </div>
-    );
-}
+  return (
+    <ThemeProvider theme={theme}>
+      <Paper elevation={3} style={paperStyle}>
+        System Availability
+      </Paper>
+    </ThemeProvider>
+  );
+};
 
-export default ViewNewForm;
+export default SystemAvailabilityView;
