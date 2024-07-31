@@ -1,41 +1,41 @@
-import React from 'react';
-import Paper from '@mui/material/Paper';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import * as React from 'react';
+import { Card, CardContent, CardMedia, Typography, Grid, Container } from '@mui/material';
+import { styled } from '@mui/system';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#beeees',
-    },
-    secondary: {
-      main: '#BABABA',
-    },
+const StyledCard = styled(Card)({
+  maxWidth: 345,
+  margin: 'auto',
+  transition: 'transform 0.15s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
   },
 });
 
-const SystemAvailabilityView = () => {
-  const containerStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh', // Full viewport height
-  };
-
-  const paperStyle = {
-    padding: '20px', // Add some padding for better appearance
-    fontSize: '24px', // Adjust font size as needed
-    fontFamily: 'Arial, sans-serif', // Change font family if needed
-  };
-
+const LandingPageContent = ({ onCardClick, features }) => {
   return (
-    <ThemeProvider theme={theme}>
-      <div style={containerStyle}>
-        <Paper elevation={3} style={paperStyle}>
-          System Availability
-        </Paper>
-      </div>
-    </ThemeProvider>
+    <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Typography variant="h1">Landing Page</Typography>
+      <Grid container spacing={4} justifyContent="center" alignItems="center" sx={{ height: '70vh' }}>
+        {features.map((feature) => (
+          <Grid item xs={12} md={4} lg={4} key={feature.name} sx={{ height: '200px' }}>
+            <StyledCard onClick={() => onCardClick(feature.component, feature.name)}>
+              <CardMedia
+                component="img"
+                image={feature.icon}
+                alt={feature.name}
+                sx={{ height: 140 }}
+              />
+              <CardContent>
+                <Typography variant="h5" component="div">
+                  {feature.name}
+                </Typography>
+              </CardContent>
+            </StyledCard>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 };
 
-export default SystemAvailabilityView;
+export default LandingPageContent;
