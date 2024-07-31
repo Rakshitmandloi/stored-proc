@@ -5,12 +5,11 @@ import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import SvgIcon from '@mui/material/SvgIcon';
 
 const theme = createTheme({
   typography: {
     fontFamily: 'Orbitron, sans-serif', // Sci-fi look
-    fontWeightBold: 700,
-    letterSpacing: '1px',
   },
   palette: {
     primary: {
@@ -26,19 +25,15 @@ const theme = createTheme({
 });
 
 const features = [
-  { name: 'View Program', component: 1, icon: <ViewAgendaIcon fontSize="large" /> },
-  { name: 'Add Program', component: 2, icon: <AssignmentTurnedInIcon fontSize="large" /> },
-  { name: 'Program Calendar', component: 3, icon: <CalendarMonthIcon fontSize="large" /> },
-  { name: 'System Availability', component: 5, icon: <SettingsIcon fontSize="large" /> },
+  { name: 'View Program', component: 1, icon: <SvgIcon component={ViewAgendaIcon} inheritViewBox /> },
+  { name: 'Add Program', component: 2, icon: <SvgIcon component={AssignmentTurnedInIcon} inheritViewBox /> },
+  { name: 'Program Calendar', component: 3, icon: <SvgIcon component={CalendarMonthIcon} inheritViewBox /> },
+  { name: 'System Availability', component: 5, icon: <SvgIcon component={SettingsIcon} inheritViewBox /> },
 ];
 
 const StyledCard = styled(Card)({
   maxWidth: 345,
   margin: 20,
-  transition: 'transform 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
 });
 
 const CenteredCardActionArea = styled(CardActionArea)({
