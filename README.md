@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Container } from '@mui/material';
 import { styled } from '@mui/system';
+import HomeIcon from '@mui/icons-material/Home';
+import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 
 const StyledCard = styled(Card)({
   maxWidth: 345,
@@ -11,6 +14,12 @@ const StyledCard = styled(Card)({
   },
 });
 
+const iconMap = {
+  home: <HomeIcon sx={{ fontSize: 70 }} />,
+  settings: <SettingsIcon sx={{ fontSize: 70 }} />,
+  info: <InfoIcon sx={{ fontSize: 70 }} />,
+};
+
 const LandingPageContent = ({ onCardClick, features = [] }) => {
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -19,14 +28,9 @@ const LandingPageContent = ({ onCardClick, features = [] }) => {
         {features.map((feature) => (
           <Grid item xs={12} md={4} lg={4} key={feature.name} sx={{ height: '200px' }}>
             <StyledCard onClick={() => onCardClick(feature.component, feature.name)}>
-              <CardMedia
-                component="img"
-                image={feature.icon}
-                alt={feature.name}
-                sx={{ height: 140 }}
-              />
-              <CardContent>
-                <Typography variant="h5" component="div">
+              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                {iconMap[feature.icon]}
+                <Typography variant="h5" component="div" sx={{ marginTop: 2 }}>
                   {feature.name}
                 </Typography>
               </CardContent>
