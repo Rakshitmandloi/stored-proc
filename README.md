@@ -7,15 +7,15 @@ const ViewNewForm = ({ formName, processData, data, user, changeUser, programId,
   const [progId, setProgId] = useState(3);
   const [dat, setDat] = useState();
 
-  const updateData = (newData) => {
+  const handleProcessData = (newData) => {
     processData(newData); // Call the processData function passed down from the parent
-    setDat(newData); // Update the local state
+    setDat(newData); // Update the local state if needed
   };
 
   return (
     <>
       <ViewForm
-        updateData={updateData}
+        processData={handleProcessData}
         formName={`form${value + 1}`}
         data={dat}
         count={count}
@@ -25,7 +25,7 @@ const ViewNewForm = ({ formName, processData, data, user, changeUser, programId,
       />
       {dat && (
         <ViewForm2
-          updateData={updateData}
+          processData={handleProcessData}
           formName={`form${value + 1}`}
           data={dat}
           count={count}
