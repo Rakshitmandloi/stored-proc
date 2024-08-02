@@ -1,15 +1,23 @@
-const StyledCard = styled(Card)({
-  maxWidth: '100%',
-  width: '100%',  // Ensure the card takes full width
+const StyledCard = styled(Card)(({ theme }) => ({
+  width: '100%',
   margin: 'auto',
   transition: 'transform 0.15s ease-in-out',
-  backgroundColor: 'maroon',  // Set the background color to maroon
-  color: 'white',  // Set the text color to white
+  backgroundColor: 'maroon',
+  color: 'white',
   '&:hover': {
     transform: 'scale(1.05)',
   },
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '90%',  // Set a max-width for small screens
+  },
+  [theme.breakpoints.up('md')]: {
+    maxWidth: '300px',  // Set a max-width for medium and up screens
+  },
+  [theme.breakpoints.up('lg')]: {
+    maxWidth: '345px',  // Set a max-width for large screens
+  },
   px: 20,
-});
+}));
 
 const CenteredCardActionArea = styled(CardActionArea)({
   display: 'flex',
@@ -29,7 +37,7 @@ const LandingPageContent = ({ onCardClick }) => (
             item 
             xs={12} sm={6} md={4} 
             key={feature.name} 
-            sx={{ height: 'auto', maxWidth: '250px', flexGrow: 1 }}
+            sx={{ height: 'auto', flexGrow: 1, display: 'flex', justifyContent: 'center' }}
           >
             <StyledCard>
               <CenteredCardActionArea onClick={() => onCardClick(feature.component, feature.name)}>
