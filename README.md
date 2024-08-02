@@ -25,6 +25,7 @@ const CenteredCardActionArea = styled(CardActionArea)({
   justifyContent: 'center',
   height: '100%',
   flexDirection: 'column',
+  padding: '10px',  // Add some padding for inner spacing
 });
 
 const LandingPageContent = ({ onCardClick }) => (
@@ -45,9 +46,24 @@ const LandingPageContent = ({ onCardClick }) => (
                   component="img"
                   image={feature.icon}
                   title={feature.name}
-                  sx={{ height: 'auto', width: '100%', mb: 1, objectFit: 'contain' }}
+                  sx={{
+                    height: { xs: '80px', sm: '100px', md: '120px' },  // Responsive height
+                    width: 'auto',
+                    objectFit: 'contain',
+                    mb: 1,
+                  }}
                 />
-                <Typography variant="h6" sx={{ backgroundColor: 'maroon', color: 'white', padding: '5px', borderRadius: '4px', textAlign: 'center' }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{
+                    backgroundColor: 'maroon',
+                    color: 'white',
+                    padding: '5px',
+                    borderRadius: '4px',
+                    textAlign: 'center',
+                    fontSize: { xs: '14px', sm: '16px', md: '18px' }  // Responsive font size
+                  }}
+                >
                   {feature.name}
                 </Typography>
               </CenteredCardActionArea>
