@@ -16,6 +16,9 @@ const handleSubmit = async () => {
 
   const authHeader = 'Basic ' + encode(username + ':' + password);
 
+  // Combine all cookies into a single string
+  const cookieHeader = 'NNSESSIONCORE=your_NNSESSIONCORE_value; YRGANJBC=your_YRGANJBC_value; SSOAuthCoreprd=your_SSOAuthCoreprd_value';
+
   setLoading(true);
   setError(null);
 
@@ -28,7 +31,7 @@ const handleSubmit = async () => {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        'Cookie': 'SSOAuthCoreprd=oTD-4EqEtQoQByWwdWk8r3GCwR4.*AAJTSQACMDQAAlNLABxHNzlhN0NUSzRoc0tPVHU3K3ZVMWRReG1yaGc9AAR0eXBIAANDVFMAAIMxAxAlxNA..;', // Include your session-related cookies here
+        'Cookie': cookieHeader,
       },
       credentials: 'include', // Ensures cookies are included in the request
     });
