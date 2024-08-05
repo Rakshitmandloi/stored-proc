@@ -24,11 +24,13 @@ const handleSubmit = async () => {
       method: 'GET',
       headers: {
         'Authorization': authHeader,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'Cache-Control': 'max-age=0',
+        'User-Agent': 'PostmanRuntime/7.29.0',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Cookie': 'SSOAuthCoreprd=oTD-4EqEtQoQByWwdWk8r3GCwR4.*AAJTSQACMDQAAlNLABxHNzlhN0NUSzRoc0tPVHU3K3ZVMWRReG1yaGc9AAR0eXBIAANDVFMAAIMxAxAlxNA..;', // Include your session-related cookies here
       },
-      credentials: 'include', // Ensure cookies are included in the request
+      credentials: 'include', // Ensures cookies are included in the request
     });
 
     if (response.ok) {
