@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, LinearProgress } from '@mui/material';
+import { Container, Typography, TextField, Button, LinearProgress, Paper, Box, Grid } from '@mui/material';
 
-const WelcomePage = ({ username, setUsername, setSelectedComponent }) => {
+const WelcomePage = ({ setUsername, setSelectedComponent }) => {
+  const [inputUsername, setInputUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
-    setUsername(e.target.value);
+    setInputUsername(e.target.value);
   };
 
   const handleSubmit = async () => {
@@ -18,7 +19,8 @@ const WelcomePage = ({ username, setUsername, setSelectedComponent }) => {
         const data = await response.json();
         if (data.access_token) {
           console.log('Successful authentication');
-          setSelectedComponent(0); // Set selected component to 0 (or any other value as needed)
+          setUsername(inputUsername); // Set the username after successful authentication
+          setSelectedComponent(0); // Navigate to the main landing page by setting selectedComponent
         } else {
           setError('Sorry, you are not a valid user.');
         }
@@ -34,32 +36,46 @@ const WelcomePage = ({ username, setUsername, setSelectedComponent }) => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        Welcome! Please enter your Username
-      </Typography>
-      <TextField
-        label="Username"
-        variant="outlined"
-        fullWidth
-        value={username}
-        onChange={handleInputChange}
-        disabled={loading}
-      />
-      {loading && <LinearProgress style={{ marginTop: '20px' }} />}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSubmit}
-        disabled={loading}
-        style={{ marginTop: '20px' }}
+      <Grid
+        container
+        style={{ minHeight: '100vh' }}
+        alignItems="center"
+        justifyContent="center"
       >
-        Submit
-      </Button>
-      {error && (
-        <Typography color="error" style={{ marginTop: '20px' }}>
-          {error}
-        </Typography>
-      )}
+        <Grid item xs={10} sm={8} md={4}>
+          <Paper elevation={10} style={{ padding: '30px', borderRadius: '10px' }}>
+            <Box mb={3}>
+              <Typography variant="h5" align="center" gutterBottom>
+                Login
+              </Typography>
+            </Box>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              value={inputUsername}
+              onChange={handleInputChange}
+              disabled={loading}
+            />
+            {loading && <LinearProgress style={{ marginTop: '20px' }} />}
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{ marginTop: '20px' }}
+            >
+              LOGIN
+            </Button>
+            {error && (
+              <Typography color="error" style={{ marginTop: '20px', textAlign: 'center' }}>
+                {error}
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
