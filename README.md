@@ -57,14 +57,13 @@ const WelcomePage = ({ setUsername, setSelectedComponent }) => {
               onChange={handleInputChange}
               disabled={loading}
             />
-            {loading && <LinearProgress style={{ marginTop: '20px' }} />}
+            {loading && <LinearProgress style={{ marginTop: '20px' }} color="secondary" />}
             <Button
               variant="contained"
-              color="primary"
               fullWidth
               onClick={handleSubmit}
               disabled={loading}
-              style={{ marginTop: '20px' }}
+              style={{ marginTop: '20px', backgroundColor: '#c32828', color: 'white' }}
             >
               LOGIN
             </Button>
