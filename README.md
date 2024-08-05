@@ -5,12 +5,21 @@ const WelcomePage = ({ setUsername, setSelectedComponent }) => {
   const [inputUsername, setInputUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [usernameError, setUsernameError] = useState(false);
 
   const handleInputChange = (e) => {
     setInputUsername(e.target.value);
+    if (usernameError) {
+      setUsernameError(false); // Reset error when user starts typing
+    }
   };
 
   const handleSubmit = async () => {
+    if (inputUsername.trim() === '') {
+      setUsernameError(true);
+      return;
+    }
+
     setLoading(true);
     setError(null); // Reset error state
     try {
@@ -56,8 +65,10 @@ const WelcomePage = ({ setUsername, setSelectedComponent }) => {
               value={inputUsername}
               onChange={handleInputChange}
               disabled={loading}
+              error={usernameError}
+              helperText={usernameError ? 'Username is required' : ''}
             />
-            {loading && <LinearProgress style={{ marginTop: '20px' }} color="secondary" />}
+            {loading && <LinearProgress style={{ marginTop: '20px' }} />}
             <Button
               variant="contained"
               fullWidth
