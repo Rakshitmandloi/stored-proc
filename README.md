@@ -1,57 +1,35 @@
-import { encode } from 'base-64';
-
-const handleSubmit = async () => {
-  const username = inputUsername;  // Get username from state
-  const password = inputPassword;  // Get password from state
-
-  if (username.trim() === '' || password.trim() === '') {
-    if (username.trim() === '') {
-      setUsernameError(true);
-    }
-    if (password.trim() === '') {
-      setPasswordError(true);
-    }
-    return;
-  }
-
-  const authHeader = 'Basic ' + encode(username + ':' + password);
-
-  // Combine all cookies into a single string
-  const cookieHeader = 'NNSESSIONCORE=your_NNSESSIONCORE_value; YRGANJBC=your_YRGANJBC_value; SSOAuthCoreprd=your_SSOAuthCoreprd_value';
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    const response = await fetch('https://intranetws.nomuranow.com/snow-sso/access-token.json', {
-      method: 'GET',
-      headers: {
-        'Authorization': authHeader,
-        'User-Agent': 'PostmanRuntime/7.29.0',
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-        'Cookie': cookieHeader,
-      },
-      credentials: 'include', // Ensures cookies are included in the request
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.access_token) {
-        console.log('Successful authentication');
-        setUsername(inputUsername); // Set the username after successful authentication
-        setSelectedComponent(0); // Navigate to the main landing page by setting selectedComponent
-      } else {
-        setError('Sorry, you are not a valid user.');
+useEffect(() => {
+  const fetchFlowDataForAllIds = async () => {
+    console.log("triggered");
+    setLoading(true);
+    try {
+      if (programFlows.length > 0) {
+        const results = await Promise.all(
+          programFlows.map(async (key) => {
+            const response = await fetch(
+              `api/query/GET_FLOW_DETAILS?flow_id=${key.id}&flow_version_id=${key.flow_version_id}`
+            );
+            const res = await response.json();
+            console.log("res", res);
+            return { [key.name]: res }; // Return an object with the key name as the property
+          })
+        );
+        // Merge the results into a single object and update the state
+        const newFlowData = results.reduce((acc, curr) => {
+          return { ...acc, ...curr };
+        }, {});
+        setFlowData((prevState) => ({
+          ...prevState,
+          ...newFlowData,
+        }));
+        console.log(newFlowData);
       }
-    } else {
-      setError('User details not found');
+    } catch (err) {
+      console.log('Error fetching flow data:', err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('Error fetching data:', err);
-    setError('Error checking user');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  fetchFlowDataForAllIds();
+}, [programFlows]); // Ensure programFlows is in the dependency array
