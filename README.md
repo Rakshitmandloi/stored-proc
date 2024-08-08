@@ -1,35 +1,44 @@
-useEffect(() => {
-  const fetchFlowDataForAllIds = async () => {
-    console.log("triggered");
-    setLoading(true);
-    try {
-      if (programFlows.length > 0) {
-        const results = await Promise.all(
-          programFlows.map(async (key) => {
-            const response = await fetch(
-              `api/query/GET_FLOW_DETAILS?flow_id=${key.id}&flow_version_id=${key.flow_version_id}`
-            );
-            const res = await response.json();
-            console.log("res", res);
-            return { [key.name]: res }; // Return an object with the key name as the property
-          })
-        );
-        // Merge the results into a single object and update the state
-        const newFlowData = results.reduce((acc, curr) => {
-          return { ...acc, ...curr };
-        }, {});
-        setFlowData((prevState) => ({
-          ...prevState,
-          ...newFlowData,
-        }));
-        console.log(newFlowData);
-      }
-    } catch (err) {
-      console.log('Error fetching flow data:', err);
-    } finally {
-      setLoading(false);
-    }
+import React, { useState } from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import Form6 from './Form6';
+
+const FlowList = ({ project, setValue }) => {
+  const [isForm6Open, setIsForm6Open] = useState(false);
+
+  const handleOpenForm6 = () => {
+    setIsForm6Open(true);
   };
 
-  fetchFlowDataForAllIds();
-}, [programFlows]); // Ensure programFlows is in the dependency array
+  const handleCloseForm6 = () => {
+    setIsForm6Open(false);
+  };
+
+  return (
+    <>
+      {/* Other existing components */}
+      
+      <Button
+        onClick={handleOpenForm6}
+        variant="contained"
+        color="secondary"
+        sx={{ marginTop: 2 }}
+      >
+        Open Form 6
+      </Button>
+
+      <Dialog open={isForm6Open} onClose={handleCloseForm6}>
+        <DialogTitle>Form 6</DialogTitle>
+        <DialogContent>
+          <Form6 />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseForm6} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+export default FlowList;
