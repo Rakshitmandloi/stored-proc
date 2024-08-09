@@ -1,3 +1,3 @@
- '& .MuiDataGrid-columnHeaders': {
-      fontWeight: 'bold', // Makes header text bold
+'& .MuiDataGrid-columnHeaderTitleContainer': {
+      fontWeight: 'bold', // Apply bold style to the header title container
     },
